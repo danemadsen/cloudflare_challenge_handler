@@ -1,0 +1,24 @@
+name: cloudflare_challenge_handler
+description: "A flutter package to handle cloudflare challenges using webview and dio"
+version: 1.0.0
+homepage:
+
+environment:
+  sdk: ^3.5.3
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dio: ^5.7.0
+  cookie_jar: ^4.0.8
+  dio_cookie_manager: ^3.1.1
+  flutter_inappwebview: ^6.1.5
+  html: ^0.15.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
