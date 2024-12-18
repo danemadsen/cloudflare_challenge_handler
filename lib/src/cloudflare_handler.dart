@@ -15,12 +15,10 @@ import 'response_extension.dart';
 class CloudflareChallengeHandler extends StatefulWidget {
   final Dio dio;
   final CookieJar cookieJar;
-  final Widget child;
 
   CloudflareChallengeHandler({
     super.key, 
     required this.dio,
-    required this.child,
     CookieJar? cookieJar
   }) : cookieJar = cookieJar ?? CookieJar() {
     if (cookieJar == null) {
@@ -153,7 +151,7 @@ class _CloudflareChallengeHandlerState extends State<CloudflareChallengeHandler>
     headlessWebView = HeadlessInAppWebView(
 			initialSettings: initialSettings,
 			initialUrlRequest: initialUrlRequest,
-			onLoadStop: onLoadStop
+			onLoadStop: onLoadStop,
 		);
 
     await headlessWebView!.run();
@@ -211,6 +209,6 @@ class _CloudflareChallengeHandlerState extends State<CloudflareChallengeHandler>
       return const Center(child: CircularProgressIndicator());
     }
 
-    return widget.child;
+    return const SizedBox.shrink();
   }
 }
