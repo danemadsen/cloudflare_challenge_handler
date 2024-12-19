@@ -6,17 +6,17 @@ The handler widget will automatically open a webview for cloudflare when a chall
 
 ## Getting started
 
-To use the package, add `cloudflare_challenge_handler` to your `pubspec.yaml` file.
+To use the package, add `cloudflare_interceptor` to your `pubspec.yaml` file.
 
 ```yaml
 dependencies:
-  cloudflare_challenge_handler: ^1.0.0
+  cloudflare_interceptor: ^1.0.0
 ```
 
 Then import the package to your dart file.
 
 ```dart
-import 'package:cloudflare_challenge_handler/cloudflare_challenge_handler.dart';
+import 'package:cloudflare_interceptor/cloudflare_interceptor.dart';
 ```
 
 ## Usage

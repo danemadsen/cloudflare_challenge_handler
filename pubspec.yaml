@@ -1,7 +1,7 @@
-name: cloudflare_challenge_handler
+name: cloudflare_interceptor
 description: "A flutter package to handle cloudflare challenges using webview and dio"
-version: 1.0.0
-repository: "https://github.com/danemadsen/cloudflare_challenge_handler"
+version: 0.0.1
+repository: "https://github.com/danemadsen/cloudflare_interceptor"
 
 environment:
   sdk: ^3.5.3
