@@ -12,7 +12,7 @@ import 'package:html/parser.dart';
 class CloudflareInterceptor extends Interceptor {
   final Dio dio;
   final CookieJar cookieJar;
-  final BuildContext Function() getBuildContext;
+  final BuildContext context;
 
   Completer<String?> _completer = Completer<String?>.sync();
   bool _usingDialog = false;
@@ -20,7 +20,7 @@ class CloudflareInterceptor extends Interceptor {
   CloudflareInterceptor({
     required this.dio, 
     required this.cookieJar, 
-    required this.getBuildContext
+    required this.context
   });
 
   @override
@@ -98,8 +98,6 @@ class CloudflareInterceptor extends Interceptor {
       headlessWebView.dispose();
       return;
     }
-    
-    final context = getBuildContext();
 
     if (!context.mounted) throw Exception('Context is not mounted');
 
@@ -156,8 +154,6 @@ class CloudflareInterceptor extends Interceptor {
 
     // Dismiss the dialog
     if (_usingDialog) {
-      final context = getBuildContext();
-
       if (!context.mounted) throw Exception('Context is not mounted');
       
       Navigator.of(context).pop();

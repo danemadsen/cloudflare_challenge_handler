@@ -1,6 +1,6 @@
 name: cloudflare_interceptor
 description: "A flutter package to handle cloudflare challenges using webview and dio"
-version: 0.0.1
+version: 0.0.2
 repository: "https://github.com/danemadsen/cloudflare_interceptor"
 
 environment:
