@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io' as io;
 
 import 'package:cloudflare_interceptor/src/request_options_extension.dart';
-import 'package:cloudflare_interceptor/src/response_extension.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -84,27 +83,28 @@ class CloudflareInterceptor extends Interceptor {
   /// @param handler The handler to pass the response to the next interceptor or to reject it.
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) async {
-    if (await response.isCloudflareChallenge) {
-      // Solve challenge using a WebView
-      try {
-        _solveCloudflare(response.requestOptions);
-        final solvedData = await _completer.future;
-        if (solvedData != null) {
-          final newResponse = Response(
-            requestOptions: response.requestOptions,
-            data: solvedData,
-            statusCode: 200,
-            extra: {'cloudflare': true},
-          );
-          handler.next(newResponse);
-        }
-      } catch (e) {
-        handler.reject(DioException(requestOptions: response.requestOptions, error: e));
-      }
-    }
-    else {
+    final cfMitigated = response.headers['cf-mitigated'];
+    if (cfMitigated == null || !cfMitigated.contains('challenge')) {
       // If not a Cloudflare challenge, proceed as normal
       handler.next(response);
+      return;
+    }
+
+    // Solve challenge using a WebView
+    try {
+      _solveCloudflare(response.requestOptions);
+      final solvedData = await _completer.future;
+      if (solvedData != null) {
+        final newResponse = Response(
+          requestOptions: response.requestOptions,
+          data: solvedData,
+          statusCode: 200,
+          extra: {'cloudflare': true},
+        );
+        handler.next(newResponse);
+      }
+    } catch (e) {
+      handler.reject(DioException(requestOptions: response.requestOptions, error: e));
     }
   }
 
@@ -122,26 +122,26 @@ class CloudflareInterceptor extends Interceptor {
   ///   - handler: The error interceptor handler to manage the error.
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    if (err.response != null && await err.response!.isCloudflareChallenge) {
-      try {
-        _solveCloudflare(err.requestOptions);
-        final solvedData = await _completer.future;
-        if (solvedData != null) {
-          final newResponse = Response(
-            requestOptions: err.requestOptions,
-            data: solvedData,
-            statusCode: 200,
-            extra: {'cloudflare': true},
-          );
-          handler.resolve(newResponse);
-        }
-      } catch (e) {
-        handler.reject(DioException(requestOptions: err.requestOptions, error: e));
-      }
-    }
-    else {
-      // If not a Cloudflare challenge, proceed as normal
+    final cfMitigated = err.response?.headers['cf-mitigated'];
+    if (err.response == null || cfMitigated == null || !cfMitigated.contains('challenge')) {
       handler.next(err);
+      return;
+    }
+
+    try {
+      _solveCloudflare(err.requestOptions);
+      final solvedData = await _completer.future;
+      if (solvedData != null) {
+        final newResponse = Response(
+          requestOptions: err.requestOptions,
+          data: solvedData,
+          statusCode: 200,
+          extra: {'cloudflare': true},
+        );
+        handler.resolve(newResponse);
+      }
+    } catch (e) {
+      handler.reject(DioException(requestOptions: err.requestOptions, error: e));
     }
   }
 
