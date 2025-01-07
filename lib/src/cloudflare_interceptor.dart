@@ -6,7 +6,6 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:html/parser.dart';
 
 /// An interceptor for handling Cloudflare challenges in Dio requests.
 /// 
@@ -188,17 +187,18 @@ class CloudflareInterceptor extends Interceptor {
   }
 
   void _onLoadStop(InAppWebViewController controller, WebUri? uri) async {
-    final html = await controller.getHtml();
-    if (html == null) return;
+    final title = await controller.getTitle();
 
-    final doc = parse(html);
-    final title = doc.querySelector('title')?.text.toLowerCase() ?? '';
+    // Check if the title contains any of the challenge keywords
+    final pattern = RegExp(
+      r'(cloudflare|just a moment|verification required)',
+      caseSensitive: false,
+    );
 
     // If the title no longer matches challenge keywords, we consider it solved.
     if (
-      title.contains('cloudflare') ||
-      title.contains('just a moment') ||
-      title.contains('verification required')
+      title == null || 
+      title.contains(pattern)
     ) return;
     
     // Get cookies from the WebView (InAppWebViewCookie)
@@ -219,6 +219,10 @@ class CloudflareInterceptor extends Interceptor {
 
     // Store the converted cookies in the Dio cookie jar
     cookieJar.saveFromResponse(uri, ioCookies);
+
+    // Get the final HTML content
+    final html = await controller.getHtml();
+    if (html == null) throw Exception('Failed to get HTML content');
 
     // Complete the challenge
     _completer.complete(html);
